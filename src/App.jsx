@@ -10,6 +10,7 @@ import AddProduct from "./Pages/AddProduct";
 import DeleteProduct from "./Pages/DeleteProduct";
 import UpdateProduct from "./Pages/UpdateProduct";
 import UpdateProductList from "./Components/UpdateProductList";
+import Cart from "./Components/Cart";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/update-product/:id" element={<UpdateProduct />} />
         <Route path="delete-product" element={<DeleteProduct />}></Route>
         <Route path="/categoriesList" element={<CategoryList />}></Route>
+        <Route path="/cart" element={<Cart />}></Route>
         <Route path="/category/:slug" element={<CategoryProducts />} />
       </Routes>
     </BrowserRouter>
