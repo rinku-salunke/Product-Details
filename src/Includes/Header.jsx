@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
@@ -38,7 +37,6 @@ function Header() {
   }, []);
 
   const closeAll = () => {
-    setIsMenuOpen(false);
     setIsProductsOpen(false);
     setIsSortOpen(false);
   };
@@ -46,7 +44,7 @@ function Header() {
   return (
     <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
+        <div className="flex items-center justify-between flex-wrap gap-2 py-2 sm:py-3 lg:py-4">
           {/* Logo – Left */}
           <Link
             to="/"
@@ -57,13 +55,13 @@ function Header() {
             <span className="hidden xs:inline">ShopZone</span>
           </Link>
 
-          {/* Right Side: Products Dropdown + Login + Cart */}
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
-            {/* Products Dropdown (desktop) */}
-            <div className="relative hidden md:block">
+          {/* Right side: Products dropdown + Login + Cart – always visible */}
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 flex-wrap">
+            {/* Products Dropdown (always visible) */}
+            <div className="relative">
               <button
                 onClick={() => setIsProductsOpen(!isProductsOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-full hover:bg-indigo-100 hover:border-indigo-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-full hover:bg-indigo-100 hover:border-indigo-300 transition-all duration-200 shadow-sm hover:shadow-md whitespace-nowrap"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +115,9 @@ function Header() {
                     >
                       <span>⬆️⬇️ Sort Products</span>
                       <svg
-                        className={`w-4 h-4 transition-transform ${isSortOpen ? "rotate-180" : ""}`}
+                        className={`w-4 h-4 transition-transform ${
+                          isSortOpen ? "rotate-180" : ""
+                        }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -175,10 +175,10 @@ function Header() {
               )}
             </div>
 
-            {/* Login Button */}
+            {/* Login Button – always visible */}
             <Link
               to="/login"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors whitespace-nowrap"
               onClick={closeAll}
             >
               <svg
@@ -224,160 +224,6 @@ function Header() {
                 </span>
               )}
             </Link>
-
-            {/* Hamburger – visible on mobile */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 sm:p-2 text-gray-700 hover:text-indigo-600 focus:outline-none"
-              aria-label="Toggle menu"
-            >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu with smooth transition */}
-        <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="pb-4 border-t border-gray-200">
-            {/* Mobile Login */}
-            <Link
-              to="/login"
-              className="block mt-3 px-4 py-2.5 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-lg text-center hover:bg-indigo-50 transition-colors"
-              onClick={closeAll}
-            >
-              Login
-            </Link>
-
-            {/* Mobile Products Dropdown */}
-            <div className="mt-2">
-              <button
-                onClick={() => setIsProductsOpen(!isProductsOpen)}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <span>Products</span>
-                <svg
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    isProductsOpen ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              {isProductsOpen && (
-                <div className="ml-4 mt-1 space-y-1 border-l-2 border-indigo-200 pl-3">
-                  <Link
-                    to="/"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    📋 All Products
-                  </Link>
-                  <Link
-                    to="/product/1"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    🔍 Single Product
-                  </Link>
-                  <hr className="border-gray-200" />
-                  <Link
-                    to="/categories"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    📂 Categories
-                  </Link>
-                  <hr className="border-gray-200" />
-                  <button
-                    onClick={() => setIsSortOpen(!isSortOpen)}
-                    className="w-full text-left flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    <span>⬆️⬇️ Sort</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${isSortOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  {isSortOpen && (
-                    <div className="ml-4 space-y-1">
-                      <Link
-                        to="/products?sortBy=price&order=asc"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                        onClick={closeAll}
-                      >
-                        💰 Low to High
-                      </Link>
-                      <Link
-                        to="/products?sortBy=price&order=desc"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-                        onClick={closeAll}
-                      >
-                        💰 High to Low
-                      </Link>
-                    </div>
-                  )}
-                  <hr className="border-gray-200" />
-                  <Link
-                    to="/add-product"
-                    className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    ➕ Add Product
-                  </Link>
-                  <Link
-                    to="/update-product"
-                    className="block px-4 py-2 text-sm text-yellow-600 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    ✏️ Update Product
-                  </Link>
-                  <Link
-                    to="/delete-product"
-                    className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg"
-                    onClick={closeAll}
-                  >
-                    🗑️ Delete Product
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
