@@ -1,4 +1,3 @@
-// Components/ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
@@ -27,7 +26,6 @@ function ProductDetail() {
         setLoading(false);
       });
 
-    // Cleanup timeout on unmount
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
@@ -35,12 +33,9 @@ function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return;
-
     const storedCart = localStorage.getItem("cart");
     let cart = storedCart ? JSON.parse(storedCart) : [];
-
     const existingIndex = cart.findIndex((item) => item.id === product.id);
-
     if (existingIndex !== -1) {
       cart[existingIndex].quantity += 1;
     } else {
@@ -52,16 +47,10 @@ function ProductDetail() {
         quantity: 1,
       });
     }
-
     localStorage.setItem("cart", JSON.stringify(cart));
-
-    // Button feedback
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
-
-    // Show notification
     setShowNotification(true);
-    // Auto‑dismiss after 3.5 seconds
     if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       setShowNotification(false);
@@ -78,7 +67,6 @@ function ProductDetail() {
     navigate("/cart");
   };
 
-  // Loading, Error, and Product checks...
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -108,26 +96,25 @@ function ProductDetail() {
       </Link>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* ... (the existing product display code) ... */}
         <div className="flex flex-col md:flex-row">
+          {/* Image – smaller max-height on mobile */}
           <div className="md:w-1/2 bg-gray-100 p-2 sm:p-4 lg:p-8 flex items-center justify-center">
             <img
               src={product.thumbnail}
               alt={product.title}
-              className="w-full max-h-[250px] sm:max-h-[350px] md:max-h-[450px] lg:max-h-[500px] object-contain aspect-square md:aspect-auto"
+              className="w-full max-h-[200px] sm:max-h-[350px] md:max-h-[450px] lg:max-h-[500px] object-contain"
             />
           </div>
 
+          {/* Info – padding and font sizes adjusted */}
           <div className="md:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col gap-3 sm:gap-4">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
               {product.title}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-1">
-              <span className="font-medium">Brand:</span>{" "}
-              {product.brand || "N/A"}
+              <span className="font-medium">Brand:</span> {product.brand || "N/A"}
               <span className="hidden sm:inline mx-1">|</span>
-              <span className="font-medium ml-0 sm:ml-2">Category:</span>{" "}
-              {product.category}
+              <span className="font-medium ml-0 sm:ml-2">Category:</span> {product.category}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600">
@@ -150,37 +137,25 @@ function ProductDetail() {
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
               {product.description}
             </p>
-            <div className="border-t border-gray-200 pt-3 space-y-1 sm:space-y-2 text-xs sm:text-sm">
-              <p>
-                <span className="font-medium">SKU:</span> {product.sku}
-              </p>
-              <p>
-                <span className="font-medium">Weight:</span> {product.weight} kg
-              </p>
+
+            {/* Detailed specs – hidden on mobile */}
+            <div className="hidden sm:block border-t border-gray-200 pt-3 space-y-1 sm:space-y-2 text-xs sm:text-sm">
+              <p><span className="font-medium">SKU:</span> {product.sku}</p>
+              <p><span className="font-medium">Weight:</span> {product.weight} kg</p>
               <p>
                 <span className="font-medium">Dimensions:</span>{" "}
                 {product.dimensions?.width} × {product.dimensions?.height} ×{" "}
                 {product.dimensions?.depth} cm
               </p>
-              <p>
-                <span className="font-medium">Warranty:</span>{" "}
-                {product.warrantyInformation}
-              </p>
-              <p>
-                <span className="font-medium">Shipping:</span>{" "}
-                {product.shippingInformation}
-              </p>
-              <p>
-                <span className="font-medium">Return Policy:</span>{" "}
-                {product.returnPolicy}
-              </p>
-              <p>
-                <span className="font-medium">Minimum Order:</span>{" "}
-                {product.minimumOrderQuantity}
-              </p>
+              <p><span className="font-medium">Warranty:</span> {product.warrantyInformation}</p>
+              <p><span className="font-medium">Shipping:</span> {product.shippingInformation}</p>
+              <p><span className="font-medium">Return Policy:</span> {product.returnPolicy}</p>
+              <p><span className="font-medium">Minimum Order:</span> {product.minimumOrderQuantity}</p>
             </div>
+
+            {/* Tags – hidden on mobile */}
             {product.tags && product.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-1">
+              <div className="hidden sm:flex flex-wrap gap-2 mt-1">
                 {product.tags.map((tag) => (
                   <span
                     key={tag}
@@ -191,6 +166,7 @@ function ProductDetail() {
                 ))}
               </div>
             )}
+
             <div className="mt-2 pt-3 border-t border-gray-200">
               <button
                 onClick={handleAddToCart}
@@ -208,9 +184,9 @@ function ProductDetail() {
           </div>
         </div>
 
-        {/* Image Gallery */}
+        {/* More Images – hidden on mobile */}
         {product.images && product.images.length > 1 && (
-          <div className="p-4 sm:p-6 border-t border-gray-200">
+          <div className="hidden sm:block p-4 sm:p-6 border-t border-gray-200">
             <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 mb-3">
               More Images
             </h3>
@@ -228,15 +204,13 @@ function ProductDetail() {
         )}
       </div>
 
-      {/* ---------------------- NOTIFICATION ---------------------- */}
+      {/* Notification */}
       {showNotification && (
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border border-gray-200 animate-slide-up">
           <div className="p-4 flex items-start gap-3">
-            {/* Icon / checkmark */}
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-lg font-bold">
               ✓
             </div>
-            {/* Message and action */}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900">
                 Item added to cart
@@ -263,7 +237,6 @@ function ProductDetail() {
                 </svg>
               </Link>
             </div>
-            {/* Close button */}
             <button
               onClick={closeNotification}
               className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
@@ -274,9 +247,7 @@ function ProductDetail() {
           </div>
         </div>
       )}
-      {/* --------------------------------------------------------- */}
 
-      {/* Optional: simple animation keyframes – add to your global CSS or Tailwind config */}
       <style jsx>{`
         @keyframes slideUp {
           from {
