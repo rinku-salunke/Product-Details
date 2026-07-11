@@ -9,7 +9,7 @@ function Products() {
   const [totalProducts, setTotalProducts] = useState(0);
 
   const q = searchParams.get("q") || "";
-  const category = searchParams.get("category") || "";   // ← read category
+  const category = searchParams.get("category") || "";
   const sortBy = searchParams.get("sortBy");
   const order = searchParams.get("order");
 
@@ -29,6 +29,9 @@ function Products() {
     }
     return new Set();
   });
+
+  // State for selected main image per product
+  const [selectedImages, setSelectedImages] = useState({});
 
   // Sync wishlist
   useEffect(() => {
@@ -73,6 +76,14 @@ function Products() {
     window.dispatchEvent(new Event("wishlistUpdated"));
   };
 
+  // Handle sub‑image click
+  const handleSubImageClick = (productId, imageUrl) => {
+    setSelectedImages((prev) => ({
+      ...prev,
+      [productId]: imageUrl,
+    }));
+  };
+
   // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
@@ -83,7 +94,6 @@ function Products() {
         if (q.trim() !== "") {
           url = `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}&limit=${itemsPerPage}&skip=${skip}`;
         } else if (category.trim() !== "") {
-          // ✅ Category endpoint
           url = `https://dummyjson.com/products/category/${encodeURIComponent(category)}?limit=${itemsPerPage}&skip=${skip}`;
         } else {
           url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${skip}`;
@@ -97,6 +107,8 @@ function Products() {
         setProducts(data.products);
         setTotalProducts(data.total);
         setError(null);
+        // Reset selected images when products change
+        setSelectedImages({});
       } catch (err) {
         setError(err.message);
       } finally {
@@ -169,18 +181,21 @@ function Products() {
         </div>
       )}
 
-      {/* Product grid – same as before */}
       <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         {products.map((product) => {
           const isInWishlist = wishlist.has(product.id);
+          const mainImage = selectedImages[product.id] || product.thumbnail;
+          const subImages = (product.images || []).slice(0, 3);
+
           return (
             <div
               key={product.id}
               className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col group"
             >
+              {/* Main Image */}
               <div className="relative bg-gray-100 aspect-[4/3] flex items-center justify-center p-2 sm:p-4">
                 <img
-                  src={product.thumbnail}
+                  src={mainImage}
                   alt={product.title}
                   className="w-full h-full object-contain max-h-36 xs:max-h-44 sm:max-h-52"
                 />
@@ -206,6 +221,26 @@ function Products() {
                 </button>
               </div>
 
+              {/* Sub‑images (if any) */}
+              {subImages.length > 0 && (
+                <div className="flex justify-center gap-1.5 py-2 px-2 bg-gray-50 border-t border-gray-100">
+                  {subImages.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`${product.title} view ${idx + 1}`}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 object-cover rounded border-2 cursor-pointer transition-all duration-200 ${
+                        mainImage === img
+                          ? "border-indigo-600 shadow-md"
+                          : "border-gray-200 hover:border-indigo-400"
+                      }`}
+                      onClick={() => handleSubImageClick(product.id, img)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Product details */}
               <div className="p-2.5 sm:p-3 md:p-4 flex-1 flex flex-col">
                 <h2 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-1">
                   {product.title}
