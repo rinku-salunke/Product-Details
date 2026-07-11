@@ -9,13 +9,15 @@ function Products() {
   const [totalProducts, setTotalProducts] = useState(0);
 
   const q = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "";   // ← read category
   const sortBy = searchParams.get("sortBy");
   const order = searchParams.get("order");
 
-  // Pagination state
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // You can adjust this
+  const itemsPerPage = 8;
 
+  // Wishlist
   const [wishlist, setWishlist] = useState(() => {
     const stored = localStorage.getItem("wishlist");
     if (stored) {
@@ -28,7 +30,7 @@ function Products() {
     return new Set();
   });
 
-  // Sync wishlist from other tabs / components
+  // Sync wishlist
   useEffect(() => {
     const syncWishlist = () => {
       const stored = localStorage.getItem("wishlist");
@@ -71,7 +73,7 @@ function Products() {
     window.dispatchEvent(new Event("wishlistUpdated"));
   };
 
-  // Fetch products with pagination
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -79,10 +81,11 @@ function Products() {
         const skip = (currentPage - 1) * itemsPerPage;
         let url;
         if (q.trim() !== "") {
-          // Search API with pagination
           url = `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}&limit=${itemsPerPage}&skip=${skip}`;
+        } else if (category.trim() !== "") {
+          // ✅ Category endpoint
+          url = `https://dummyjson.com/products/category/${encodeURIComponent(category)}?limit=${itemsPerPage}&skip=${skip}`;
         } else {
-          // All products with pagination + sorting
           url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${skip}`;
           if (sortBy && order) {
             url += `&sortBy=${sortBy}&order=${order}`;
@@ -102,12 +105,12 @@ function Products() {
     };
 
     fetchProducts();
-  }, [q, sortBy, order, currentPage, itemsPerPage]);
+  }, [q, category, sortBy, order, currentPage, itemsPerPage]);
 
-  // Reset to page 1 when search or sort changes
+  // Reset page when search/category changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [q, sortBy, order]);
+  }, [q, category, sortBy, order]);
 
   const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
@@ -134,11 +137,19 @@ function Products() {
     );
   }
 
+  // Build heading title
+  let headingText = "All Products";
+  if (q) headingText = `Results for "${q}"`;
+  else if (category) {
+    const formatted = category.replace(/-/g, " ").replace(/\b\w/g, char => char.toUpperCase());
+    headingText = formatted;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8">
       <div className="flex flex-wrap items-baseline gap-2 mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
-          {q ? `Results for "${q}"` : "All Products"}
+          {headingText}
           <span className="text-sm font-normal text-gray-500 ml-2">
             ({totalProducts} products)
           </span>
@@ -152,14 +163,16 @@ function Products() {
 
       {products.length === 0 && (
         <div className="text-center py-12 text-gray-500 text-xl">
-          {q ? `No products found for "${q}". Try a different search term.` : "No products available."}
+          {q ? `No products found for "${q}". Try a different search term.` :
+           category ? `No products in this category.` :
+           "No products available."}
         </div>
       )}
 
+      {/* Product grid – same as before */}
       <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         {products.map((product) => {
           const isInWishlist = wishlist.has(product.id);
-
           return (
             <div
               key={product.id}
@@ -228,17 +241,6 @@ function Products() {
                   </div>
                 )}
 
-                {product.images && product.images.length > 1 && (
-                  <div className="flex gap-1 mt-2 overflow-x-auto">
-                    {product.images.slice(0, 4).map((img, idx) => (
-                      <img key={idx} src={img} alt="" className="w-6 h-6 sm:w-8 sm:h-8 object-cover rounded border border-gray-200 flex-shrink-0" />
-                    ))}
-                    {product.images.length > 4 && (
-                      <span className="text-[10px] sm:text-xs text-gray-400 self-center">+{product.images.length - 4}</span>
-                    )}
-                  </div>
-                )}
-
                 <Link
                   to={`/product/${product.id}`}
                   className="mt-3 sm:mt-4 text-center bg-indigo-600 hover:bg-indigo-700 text-white py-1.5 sm:py-2 rounded-md transition duration-200 text-xs sm:text-sm font-medium"
@@ -251,7 +253,7 @@ function Products() {
         })}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-center gap-2 mt-8 sm:mt-10">
           <button

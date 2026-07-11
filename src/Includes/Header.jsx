@@ -88,7 +88,7 @@ function Header() {
       <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between flex-wrap gap-2 py-2 sm:py-3 lg:py-4">
-            {/* Logo and Myntra Label (Left) */}
+            {/* Logo and Myntra Label */}
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <Link
                 to="/"
@@ -100,8 +100,6 @@ function Header() {
                   TrendBazzar
                 </span>
               </Link>
-
-              {/* Myntra – bigger, no icon, no jsx */}
               <span className="hidden sm:inline-flex items-center font-bold cursor-default">
                 <span className="text-xl bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent hover:from-pink-600 hover:to-purple-700 transition">
                   Myntra
@@ -172,7 +170,7 @@ function Header() {
             </div>
           </div>
 
-          {/* Category Navigation */}
+          {/* Category Navigation – now links to Products with category param */}
           <div className="flex items-center gap-4 lg:gap-6 py-2 text-sm font-medium text-gray-700 border-t border-gray-100 overflow-x-auto">
             {categoriesLoading ? (
               <span className="text-gray-400">Loading categories...</span>
@@ -180,7 +178,7 @@ function Header() {
               categories.map((category) => (
                 <Link
                   key={category}
-                  to={`/category/${category}`}
+                  to={`/?category=${category}`}  // ← updated link
                   className="hover:text-indigo-600 font-bold whitespace-nowrap transition-colors uppercase text-xs lg:text-sm"
                   onClick={closeAll}
                 >
@@ -188,14 +186,15 @@ function Header() {
                 </Link>
               ))
             ) : (
+              // Fallback
               <>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">MEN</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">WOMEN</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">KIDS</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">HOME</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">BEAUTY</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">GENZ</Link>
-                <Link to="/" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">STUDIONEW</Link>
+                <Link to="/?category=men" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">MEN</Link>
+                <Link to="/?category=women" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">WOMEN</Link>
+                <Link to="/?category=kids" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">KIDS</Link>
+                <Link to="/?category=home" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">HOME</Link>
+                <Link to="/?category=beauty" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">BEAUTY</Link>
+                <Link to="/?category=genz" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">GENZ</Link>
+                <Link to="/?category=studio" className="hover:text-indigo-600 font-bold uppercase text-xs lg:text-sm">STUDIONEW</Link>
               </>
             )}
           </div>
