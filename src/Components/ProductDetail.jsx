@@ -9,6 +9,7 @@ function ProductDetail() {
   const [error, setError] = useState(null);
   const [isAdded, setIsAdded] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   let timeoutId = null;
 
   useEffect(() => {
@@ -19,6 +20,7 @@ function ProductDetail() {
       })
       .then((data) => {
         setProduct(data);
+        setSelectedImage(data.thumbnail); // Set initial main image
         setLoading(false);
       })
       .catch((err) => {
@@ -48,6 +50,7 @@ function ProductDetail() {
       });
     }
     localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event('cartUpdated'));
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
     setShowNotification(true);
@@ -85,6 +88,13 @@ function ProductDetail() {
 
   if (!product) return null;
 
+  // Get images array (thumbnail may or may not be included)
+  const allImages = product.images || [];
+  // If thumbnail is not in the images list, prepend it for a complete gallery
+  const galleryImages = allImages.includes(product.thumbnail) 
+    ? allImages 
+    : [product.thumbnail, ...allImages];
+
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-6 lg:py-8">
       {/* Back Button */}
@@ -97,24 +107,48 @@ function ProductDetail() {
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          {/* Image – smaller max-height on mobile */}
-          <div className="md:w-1/2 bg-gray-100 p-2 sm:p-4 lg:p-8 flex items-center justify-center">
-            <img
-              src={product.thumbnail}
-              alt={product.title}
-              className="w-full max-h-[200px] sm:max-h-[350px] md:max-h-[450px] lg:max-h-[500px] object-contain"
-            />
+          {/* Left Column: Image Gallery */}
+          <div className="md:w-1/2 bg-gray-100 p-2 sm:p-4 lg:p-8 flex flex-col items-center">
+            {/* Main Image */}
+            <div className="w-full flex justify-center items-center">
+              <img
+                src={selectedImage || product.thumbnail}
+                alt={product.title}
+                className="w-full max-h-[200px] sm:max-h-[350px] md:max-h-[450px] lg:max-h-[500px] object-contain"
+              />
+            </div>
+
+            {/* Sub‑images (thumbnails) – always visible */}
+            {galleryImages.length > 1 && (
+              <div className="flex flex-wrap justify-center gap-2 mt-4 w-full">
+                {galleryImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${product.title} view ${idx + 1}`}
+                    className={`w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-cover rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      selectedImage === img
+                        ? "border-indigo-600 shadow-md"
+                        : "border-gray-300 hover:border-indigo-400"
+                    }`}
+                    onClick={() => setSelectedImage(img)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Info – padding and font sizes adjusted */}
+          {/* Right Column: Product Info */}
           <div className="md:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col gap-3 sm:gap-4">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
               {product.title}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-1">
-              <span className="font-medium">Brand:</span> {product.brand || "N/A"}
+              <span className="font-medium">Brand:</span>{" "}
+              {product.brand || "N/A"}
               <span className="hidden sm:inline mx-1">|</span>
-              <span className="font-medium ml-0 sm:ml-2">Category:</span> {product.category}
+              <span className="font-medium ml-0 sm:ml-2">Category:</span>{" "}
+              {product.category}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600">
@@ -140,17 +174,33 @@ function ProductDetail() {
 
             {/* Detailed specs – hidden on mobile */}
             <div className="hidden sm:block border-t border-gray-200 pt-3 space-y-1 sm:space-y-2 text-xs sm:text-sm">
-              <p><span className="font-medium">SKU:</span> {product.sku}</p>
-              <p><span className="font-medium">Weight:</span> {product.weight} kg</p>
+              <p>
+                <span className="font-medium">SKU:</span> {product.sku}
+              </p>
+              <p>
+                <span className="font-medium">Weight:</span> {product.weight} kg
+              </p>
               <p>
                 <span className="font-medium">Dimensions:</span>{" "}
                 {product.dimensions?.width} × {product.dimensions?.height} ×{" "}
                 {product.dimensions?.depth} cm
               </p>
-              <p><span className="font-medium">Warranty:</span> {product.warrantyInformation}</p>
-              <p><span className="font-medium">Shipping:</span> {product.shippingInformation}</p>
-              <p><span className="font-medium">Return Policy:</span> {product.returnPolicy}</p>
-              <p><span className="font-medium">Minimum Order:</span> {product.minimumOrderQuantity}</p>
+              <p>
+                <span className="font-medium">Warranty:</span>{" "}
+                {product.warrantyInformation}
+              </p>
+              <p>
+                <span className="font-medium">Shipping:</span>{" "}
+                {product.shippingInformation}
+              </p>
+              <p>
+                <span className="font-medium">Return Policy:</span>{" "}
+                {product.returnPolicy}
+              </p>
+              <p>
+                <span className="font-medium">Minimum Order:</span>{" "}
+                {product.minimumOrderQuantity}
+              </p>
             </div>
 
             {/* Tags – hidden on mobile */}
@@ -183,25 +233,6 @@ function ProductDetail() {
             </div>
           </div>
         </div>
-
-        {/* More Images – hidden on mobile */}
-        {product.images && product.images.length > 1 && (
-          <div className="hidden sm:block p-4 sm:p-6 border-t border-gray-200">
-            <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 mb-3">
-              More Images
-            </h3>
-            <div className="flex flex-wrap gap-2 sm:gap-4">
-              {product.images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`${product.title} ${idx + 1}`}
-                  className="w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 object-cover rounded-lg border border-gray-200 flex-shrink-0"
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Notification */}
